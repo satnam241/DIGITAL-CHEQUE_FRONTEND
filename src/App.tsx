@@ -12,7 +12,7 @@ import { Footer } from './components/Footer';
 import Plans from './pages/Plans';
 import WizardForm from './components/Wizard/WizardForm';
 import UserDashboard from './pages/UserDashboard';
-
+import AdminDashboard from './pages/AdminDashboard'
 import './App.css';
 
 function App() {
@@ -28,8 +28,15 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/plans" element={<Plans />} />
               <Route path="/payment-wizard" element={<WizardForm />} />
-
               {/* Protected Routes */}
+              <Route 
+                path="/admin/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
               <Route 
                 path="/dashboard" 
                 element={

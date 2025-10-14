@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { USER_AUTH, ENDPOINTS } from "../utils/constant";
 
-import {USER_AUTH,ENDPOINTS } from "../utils/constant";
 interface User {
   id: number;
   name: string;
@@ -22,7 +22,7 @@ interface ApiError {
 }
 
 const SignupPage: React.FC = () => {
-    const navigate = useNavigate();  
+  const navigate = useNavigate();  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,13 +39,9 @@ const SignupPage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [countdown, setCountdown] = useState(3);
 
- 
-
   useEffect(() => {
     if (isRegistered && countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (isRegistered && countdown === 0) {
       navigate("/login");
@@ -64,142 +60,79 @@ const SignupPage: React.FC = () => {
     }
   };
 
-  // Validate form
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
 
-    // Name validation
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters";
-    }
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
+    else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters";
 
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = "Invalid email address";
-    }
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Invalid email address";
 
-    // Phone validation
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^[0-9]{10}$/.test(formData.phone)) {
-      newErrors.phone = "Phone number must be 10 digits";
-    }
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+    else if (!/^[0-9]{10}$/.test(formData.phone)) newErrors.phone = "Phone number must be 10 digits";
 
-    // Password validation
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
+    if (!formData.password.trim()) newErrors.password = "Password is required";
+    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
 
-    // Confirm password validation
-    if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
+    if (!formData.confirmPassword.trim()) newErrors.confirmPassword = "Please confirm your password";
+    else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
 
-    // Terms agreement validation
-    if (!formData.agreeTerms) {
-      newErrors.agreeTerms = "You must agree to the terms and conditions";
-    }
+    if (!formData.agreeTerms) newErrors.agreeTerms = "You must agree to the terms and conditions";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Mock API call for demonstration
-  const mockApiCall = async (): Promise<RegisterResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: "mock-jwt-token-12345",
-          user: {
-            id: 1,
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            role: "user"
-          },
-          message: "Registration successful"
-        });
-      }, 1500);
-    });
-  };
-
-  
-const handleSignup = async () => {
-   
+  const handleSignup = async () => {
     if (!validateForm()) return;
-  
+
     setIsLoading(true);
     setErrors({});
-  
+
     try {
-      const response = await fetch(`${USER_AUTH}${ENDPOINTS.Signup}`, {
+      const response = await fetch(`${USER_AUTH}${ENDPOINTS.signup}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.name,
+          fullName: formData.name,
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
         }),
       });
-  
+
       const data: RegisterResponse | ApiError = await response.json();
-  
+
       if (!response.ok) {
         const errorData = data as ApiError;
-        if (errorData.errors) {
-          setErrors(errorData.errors);
-        } else {
-          setErrors({ general: errorData.message || "Registration failed" });
-        }
+        if (errorData.errors) setErrors(errorData.errors as any);
+        else setErrors({ general: errorData.message || "Registration failed" });
         return;
       }
-  
+
       const registerData = data as RegisterResponse;
-  
-      // ✅ Save authentication data in sessionStorage
+
+      // Save authentication data
       sessionStorage.setItem("token", registerData.token);
       sessionStorage.setItem("user", JSON.stringify(registerData.user));
-  
+
       setUser(registerData.user);
       setIsRegistered(true);
-      setCountdown(3); // Reset countdown
-  
+      setCountdown(3);
+
     } catch (error) {
       console.error("Registration error:", error);
-      setErrors({
-        general: "Network error. Please check your connection and try again.",
-      });
+      setErrors({ general: "Network error. Please check your connection and try again." });
     } finally {
       setIsLoading(false);
     }
   };
-  
 
-  // Toggle password visibility
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const handleSkipCountdown = () => { setCountdown(0); navigate("/login"); };
 
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  // Skip countdown and go to login immediately
-  const handleSkipCountdown = () => {
-    setCountdown(0);
-    navigate("/login");
-  };
 
   return (
     <>
@@ -351,7 +284,7 @@ const handleSignup = async () => {
                     disabled={isLoading}
                     style={{
                       borderRadius: "12px",
-                      border: "2px solid #0B7456",
+                      border: "2px solid e5e7eb",
                       padding: "12px 16px",
                       fontSize: "16px"
                     }}

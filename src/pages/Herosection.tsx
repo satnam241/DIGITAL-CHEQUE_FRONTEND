@@ -58,7 +58,7 @@ const HeroSection: React.FC = () => {
       <div className="text-white text-center py-3 mt-4"
       style={{ backgroundColor: "#002141"}}>
         <h5 className="fw-bold">
-          ChequeMan – Smart & Easy Software for Cheque Printing
+          PlanningEarth ChequeService – Smart & Easy Service for Cheque Printing
         </h5>
       </div>
 
@@ -117,8 +117,7 @@ const HeroSection: React.FC = () => {
             {/* Left Column */}
             <Col md={6} className="mb-3 text-dark justify-start ml-5 justify-flex">
               <p>✅ Supports multiple Account Holders & Banks</p>
-              <p>✅ Professionally printed cheques - enhances image</p>
-              <p>✅ Bulk Printing - EMI, Batch, Excel Import</p>
+              <p>✅ Professionally printed cheques </p>
               <p>✅ Web import of ready to use cheque formats</p>
               <p>✅ Works in existing environment of computer and printer</p>
             </Col>
@@ -129,8 +128,7 @@ const HeroSection: React.FC = () => {
               <p>✅ Information on issued cheques at fingertips</p>
               <p>✅ Managing all cheques from a single point</p>
               <p>
-                ✅ Backup & Restoration of Data (including scanned Cheque
-                formats)
+                ✅ Backup & Restoration of Data 
               </p>
               <p>✅ Manual cheques, Post-dated cheques</p>
             </Col>
