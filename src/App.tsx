@@ -28,6 +28,7 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/plans" element={<Plans />} />
               <Route path="/payment-wizard" element={<WizardForm />} />
+              <Route path="/reset-password/:token" element={<Login/>} />
               {/* Protected Routes */}
               <Route 
                 path="/admin/dashboard" 

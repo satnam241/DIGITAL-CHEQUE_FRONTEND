@@ -14,6 +14,8 @@ export const ENDPOINTS = {
   signup: '/signup',             
   LOGOUT: '/logout',
   VERIFY: '/me',
+  forgotPassword:'/forgot-password',
+  RESET_PASSWORD_OTP:'/reset-password',
 
   // Cheque routes
   CHEQUE_PRINTING: '/cheque-printing',

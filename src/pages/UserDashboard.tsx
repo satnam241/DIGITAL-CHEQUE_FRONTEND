@@ -964,7 +964,7 @@ const UserDashboard = () => {
       <div
         className="d-flex vh-100 justify-content-center align-items-center"
         style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "rgb(249 241 230)",
         }}
       >
         <div className="text-center">
@@ -983,7 +983,7 @@ const UserDashboard = () => {
       <div
         className="d-flex vh-100 justify-content-center align-items-center flex-column"
         style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "rgb(249 241 230)",
         }}
       >
         <div className="text-center p-5 rounded-4 bg-white shadow-lg">
@@ -1006,7 +1006,7 @@ const UserDashboard = () => {
         <div
           className="container py-4"
           style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: "rgb(249 241 230)",
             borderRadius: "20px",
             padding: "30px",
           }}
@@ -1014,10 +1014,10 @@ const UserDashboard = () => {
           {/* Header Section */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h3 className="fw-bold text-white mb-1">
+              <h3 className="fw-bold text-black-30 mb-1">
                 Welcome, {dashboardData?.user?.name || "User"} 👋
               </h3>
-              <p className="text-white-50 mb-0">
+              <p className="text-black-50 mb-0">
                 Manage your cheques, plans, and payments
               </p>
             </div>
@@ -1026,8 +1026,8 @@ const UserDashboard = () => {
               onClick={goToCheckPrinting}
               style={{
                 background:
-                  "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-                color: "white",
+                  "rgb(12 119 111)",
+                color: "rgb(249 241 230)",
                 border: "none",
                 borderRadius: "10px",
                 fontWeight: "500",
@@ -1042,32 +1042,32 @@ const UserDashboard = () => {
           <div className="row g-4 mb-5">
             <div className="col-md-4">
               <div
-                className="card border-0 shadow-lg h-100 text-white"
+                className="card border-0 shado-lg h-100 text-black-30"
                 style={{
-                  background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                  background: "white",
                   borderRadius: "20px",
                 }}
               >
-                <div className="card-body p-4">
-                  <h6 className="text-white-50 mb-2">Active Plan</h6>
+                <div className="card-body p-4 shadow-sm opacity-100">
+                  <h6 className="text-black-50 mb-2">Active Plan</h6>
                   <h3 className="fw-bold mb-0">
                     {dashboardData?.user?.plan || "Free"}
                   </h3>
-                  <TrendingUp size={24} className="mt-3 opacity-75" />
+                  <TrendingUp size={24} className="mt-3 opacity-100" />
                 </div>
               </div>
             </div>
 
             <div className="col-md-4">
               <div
-                className="card border-0 shadow-lg h-100 text-white"
+                className="card border-0 shadow-lg h-100 text-black-30"
                 style={{
-                  background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                  background: "white",
                   borderRadius: "20px",
                 }}
               >
-                <div className="card-body p-4">
-                  <h6 className="text-white-50 mb-2">Days Remaining</h6>
+                <div className="card-body p-4 shadow-sm">
+                  <h6 className="text-black-50 mb-2">Days Remaining</h6>
                   <h3 className="fw-bold mb-0">
                     {dashboardData?.countdown ?? "N/A"}
                   </h3>
@@ -1078,14 +1078,14 @@ const UserDashboard = () => {
 
             <div className="col-md-4">
               <div
-                className="card border-0 shadow-lg h-100 text-white"
+                className="card border-0 shadow-lg h-100 text-black-30"
                 style={{
-                  background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                  background: "white",
                   borderRadius: "20px",
                 }}
               >
-                <div className="card-body p-4">
-                  <h6 className="text-white-50 mb-2">Cheques Used</h6>
+                <div className="card-body p-4 shadow-sm">
+                  <h6 className="text-black-50 mb-2">Cheques Used</h6>
                   <h3 className="fw-bold mb-0">
                     {dashboardData?.cheques?.used || 0} /{" "}
                     {dashboardData?.cheques?.total || 0}
@@ -1110,9 +1110,9 @@ const UserDashboard = () => {
                       style={{
                         background:
                           activeTab === tab
-                            ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                            ? "rgb(12 119 111)"
                             : "transparent",
-                        color: activeTab === tab ? "white" : "#6c757d",
+                        color: activeTab === tab ? "rgb(249 241 230)" : "#6c757d",
                         border: "none",
                         borderRadius: "12px",
                         marginRight: "8px",
@@ -1129,7 +1129,7 @@ const UserDashboard = () => {
               <div className="p-4">
                 {activeTab === "overview" && (
                   <div>
-                    <h5 className="fw-bold mb-4" style={{ color: "#667eea" }}>
+                    <h5 className="fw-bold mb-4" style={{ color: "#0c776f" }}>
                       Account Overview
                     </h5>
                     <p>
@@ -1150,7 +1150,7 @@ const UserDashboard = () => {
 
                 {activeTab === "cheques" && (
                   <div>
-                    <h5 className="fw-bold mb-4" style={{ color: "#667eea" }}>
+                    <h5 className="fw-bold mb-4" style={{ color: "#0c776f" }}>
                       Cheque History
                     </h5>
                     {dashboardData?.cheques?.history?.length ? (
@@ -1178,7 +1178,7 @@ const UserDashboard = () => {
 
                 {activeTab === "payments" && (
                   <div>
-                    <h5 className="fw-bold mb-4" style={{ color: "#667eea" }}>
+                    <h5 className="fw-bold mb-4" style={{ color: "#0c776f" }}>
                       Payment History
                     </h5>
                     {dashboardData?.payments?.length ? (
@@ -1221,7 +1221,7 @@ const UserDashboard = () => {
 
                 {activeTab === "settings" && (
                   <div>
-                    <h5 className="fw-bold mb-4" style={{ color: "#667eea" }}>
+                    <h5 className="fw-bold mb-4" style={{ color: "#0c776f" }}>
                       Settings
                     </h5>
                     <p className="text-muted mb-0">
