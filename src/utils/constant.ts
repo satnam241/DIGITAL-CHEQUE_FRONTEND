@@ -16,6 +16,7 @@ export const ENDPOINTS = {
   VERIFY: '/me',
   forgotPassword:'/forgot-password',
   RESET_PASSWORD_OTP:'/reset-password',
+  UPDATE_PASSWORD:'/dashboard/resetpassword',
 
   // Cheque routes
   CHEQUE_PRINTING: '/cheque-printing',

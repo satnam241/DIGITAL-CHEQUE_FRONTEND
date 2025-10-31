@@ -460,7 +460,7 @@ const SignupPage: React.FC = () => {
                   <label className="form-check-label text-muted" htmlFor="agreeTerms">
   I agree to the{" "}
   <a 
-    href="#" 
+    href="terms-of-service" 
     className="text-decoration-none" 
     style={{ color: "#0B7456" }}
   >
@@ -468,7 +468,7 @@ const SignupPage: React.FC = () => {
   </a>{" "}
   and{" "}
   <a 
-    href="#" 
+    href="/privacy-policy" 
     className="text-decoration-none" 
     style={{ color: "#0B7456" }}
   >

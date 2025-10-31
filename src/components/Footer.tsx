@@ -57,16 +57,16 @@ export const Footer: React.FC = () => {
             <h4 className="h5 mb-3">Support</h4>
             <ul className="list-unstyled">
               <li className="mb-2">
-                <a href="#help" className="text-white text-decoration-none">Help Center</a>
+                <a href="/help-center" className="text-white text-decoration-none">Help Center</a>
               </li>
               <li className="mb-2">
-                <a href="#contact" className="text-white text-decoration-none">Contact Us</a>
+                <a href="/contact-us" className="text-white text-decoration-none">Contact Us</a>
               </li>
               <li className="mb-2">
-                <a href="#privacy" className="text-white text-decoration-none">Privacy Policy</a>
+                <a href="/privacy-policy" className="text-white text-decoration-none">Privacy Policy</a>
               </li>
               <li className="mb-2">
-                <a href="#terms" className="text-white text-decoration-none">Terms of Service</a>
+                <a href="/terms-of-service" className="text-white text-decoration-none">Terms of Service</a>
               </li>
             </ul>
           </div>

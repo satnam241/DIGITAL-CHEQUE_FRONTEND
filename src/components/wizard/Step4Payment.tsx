@@ -204,7 +204,7 @@ const Step4Payment: React.FC<Props> = ({ planId, payableAmount, userDetails }) =
           const result = await verifyRes.json();
           if (verifyRes.ok) {
             alert("✅ Payment successful!");
-            window.location.href = "/payment-success";
+            window.location.href = "/signup";
           } else {
             alert(result.message || "Payment verification failed");
           }

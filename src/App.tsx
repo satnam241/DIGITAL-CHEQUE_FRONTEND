@@ -13,6 +13,10 @@ import Plans from './pages/Plans';
 import WizardForm from './components/Wizard/WizardForm';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard'
+import HelpCenter from './support-pages/HelpCenter'
+import ContactUs from './support-pages/ContactUs'
+import PrivacyPolicy from './support-pages/PrivacyPolicy'
+import TermsOfService from './support-pages/TermsOfService'
 import './App.css';
 
 function App() {
@@ -29,6 +33,7 @@ function App() {
               <Route path="/plans" element={<Plans />} />
               <Route path="/payment-wizard" element={<WizardForm />} />
               <Route path="/reset-password/:token" element={<Login/>} />
+              
               {/* Protected Routes */}
               <Route 
                 path="/admin/dashboard" 
@@ -54,6 +59,11 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/help-center" element={<HelpCenter />} />
+<Route path="/contact-us" element={<ContactUs />} />
+<Route path="/privacy-policy" element={<PrivacyPolicy />} />
+<Route path="/terms-of-service" element={<TermsOfService />} />
+
             </Routes>
           </main>
           <Footer />

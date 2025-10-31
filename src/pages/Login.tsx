@@ -222,7 +222,6 @@ interface User {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useContext(AuthContext);
-
   const [activeRole, setActiveRole] = useState<"user" | "admin">("user");
   const [activeTab, setActiveTab] = useState<"login" | "forgot" | "reset">("login");
 
