@@ -28,9 +28,9 @@ const ChequePrinter: React.FC = () => {
 
   const bankLayouts: Record<string, BankLayout> = {
     sbi: {
-      date: { top: "13mm", right: "-42mm", letterSpacing: "3mm" },
+      date: { top: "15mm", right: "-28mm", letterSpacing: "3mm" },
       payto: { top: "28mm", left: "70mm" },
-      words: { top: "34mm", left: "77mm" },
+      words: { top: "32mm", left: "77mm" },
       number: { top: "45mm", right: "-15mm" },
     },
     axis: {
@@ -138,13 +138,22 @@ const ChequePrinter: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof ChequeData, value: string) => {
+    const formattedValue =
+      field === "payTo"
+        ? value.toUpperCase()
+        : field === "amountWords"
+        ? value.toUpperCase()
+        : value;
+  
     if ((field === "date" || field === "amountNumber") && !/^[0-9]*$/.test(value)) return;
+  
     setChequeData((prev) => {
-      const updated = { ...prev, [field]: value };
+      const updated = { ...prev, [field]: formattedValue };
       if (field === "amountNumber") updated.amountWords = numberToWords(value);
       return updated;
     });
   };
+  
 
   const formatAmountWords = (words: string) => {
     if (!words) return "";
@@ -272,7 +281,7 @@ const ChequePrinter: React.FC = () => {
               value={chequeData.date}
               onChange={(e) => handleInputChange("date", e.target.value)}
               maxLength={8}
-              placeholder="15122024"
+              placeholder="DDMMYYYY"
             />
           </div>
 
@@ -281,6 +290,7 @@ const ChequePrinter: React.FC = () => {
             <input
               type="text"
               className="form-control rounded-2"
+              style={{ textTransform: "uppercase" }}
               value={chequeData.payTo}
               onChange={(e) => handleInputChange("payTo", e.target.value)}
               placeholder="Recipient name"
@@ -294,13 +304,14 @@ const ChequePrinter: React.FC = () => {
               className="form-control rounded-2"
               value={chequeData.amountNumber}
               onChange={(e) => handleInputChange("amountNumber", e.target.value)}
-              placeholder="1500"
+              placeholder="AMOUNT"
             />
           </div>
 
-          <div className="alert alert-success py-2 rounded-2">
-            <strong>Amount in Words:</strong> {chequeData.amountWords || "—"}
-          </div>
+          <div className="alert alert-success py-2 rounded-2" style={{ textTransform: "uppercase" }}>
+  <strong>Amount in Words:</strong> {chequeData.amountWords || "—"}
+</div>
+
 
           <div className="mb-3">
             <label className="form-label fw-semibold">Select Bank</label>
