@@ -1,4 +1,4 @@
-const IP = 'http://localhost:4000';
+const IP = 'https://digital-cheque.onrender.com';
 
 export const USER_AUTH = `${IP}/api/cheques`;
 export const USER_PROP = `${IP}/api/dashboard`;

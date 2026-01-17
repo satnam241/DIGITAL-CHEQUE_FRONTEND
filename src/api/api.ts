@@ -1,7 +1,7 @@
 // src/api/api.ts
 
 // Env variable from Vite
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API_URL = import.meta.env.VITE_API_URL || "https://digital-cheque.onrender.com";
 
 export const api = async (endpoint: string, options: RequestInit = {}) => {
   const token = sessionStorage.getItem("authToken");
