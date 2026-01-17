@@ -10,7 +10,7 @@ import ProtectedRoute from './pages/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import Plans from './pages/Plans';
-import WizardForm from "./components/Wizard/WizardForm";
+import WizardForm from "./components/wizard/WizardForm";
 //import StepIndicator from "./StepIndicator";
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard'
