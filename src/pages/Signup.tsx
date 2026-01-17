@@ -454,8 +454,9 @@ const SignupPage: React.FC = () => {
                       disabled={isLoading}
                       style={{
                         accentColor: "#0B7456",   
-                        WebkitAppearance: "auto", 
-                        MozAppearance: "auto",
+                        WebkitAppearance: "none",
+                        MozAppearance: "none",
+                        appearance: "none",
                       }} />
                   <label className="form-check-label text-muted" htmlFor="agreeTerms">
   I agree to the{" "}

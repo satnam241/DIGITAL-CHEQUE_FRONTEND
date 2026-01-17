@@ -76,8 +76,9 @@
 //     </AuthContext.Provider>
 //   );
 // };
+import { createContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
 
-import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface User {
@@ -85,7 +86,7 @@ interface User {
   fullName: string;    // backend `fullName`
   email: string;
   phone?: string;
-  role?: string;       // backend me "session" aa raha hai, use as role
+  role?: string;     
 }
 
 interface AuthContextType {

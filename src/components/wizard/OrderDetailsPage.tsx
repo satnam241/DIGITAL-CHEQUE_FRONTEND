@@ -278,49 +278,87 @@
 // };
 
 // export default OrderDetailsPage;
+import { useEffect, useState } from "react";
+import { calculateGST, validateGST } from "../../services/apiService";
 
-import React, { useState, useEffect } from "react";
-import { calculateGST, validateGST } from "../../services/apiService"; // backend APIs
+/* -------------------- Types -------------------- */
 
-interface Props {
-  plan: any;
-  next: () => void;
-  updateOrderData: (data: any) => void;
+interface Plan {
+  _id: string;
+  name: string;
+  price: number;
 }
 
-const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
+export interface OrderData {
+  productName: string;
+  priceId: string;
+  quantity: number;
+  taxableAmount: number;
+  gst: number;
+  payableAmount: number;
+  gstNumber: string;
+  gstValid: boolean;
+}
+
+interface Props {
+  plan: Plan;
+  next: () => void;
+  updateOrderData: (data: OrderData) => void;
+}
+
+/* -------------------- Component -------------------- */
+
+const OrderDetailsPage = ({ plan, next, updateOrderData }: Props) => {
   const [gstNumber, setGstNumber] = useState("");
   const [gstValidationMsg, setGstValidationMsg] = useState<string | null>(null);
   const [loadingGST, setLoadingGST] = useState(false);
   const [loadingValidation, setLoadingValidation] = useState(false);
 
-  const [orderData, setOrderData] = useState({
-    productName: plan?.name || "",
-    priceId: plan?._id || "",
+  const [orderData, setOrderData] = useState<OrderData>({
+    productName: plan.name,
+    priceId: plan._id,
     quantity: 1,
-    taxableAmount: plan?.price || 0,
+    taxableAmount: plan.price,
     gst: 0,
-    payableAmount: plan?.price || 0,
+    payableAmount: plan.price,
     gstNumber: "",
     gstValid: false,
   });
 
-  // Recalculate GST from backend
+  /* -------------------- GST Recalculation -------------------- */
+
   const recalcGST = async () => {
-    if (!plan) return;
     try {
       setLoadingGST(true);
-      const res = await calculateGST(plan.price, 1); // call backend
-      if (res.success) {
-        setOrderData(prev => ({
-          ...prev,
-          taxableAmount: res.data.taxableAmount,
-          gst: res.data.gst,
-          payableAmount: res.data.payableAmount,
-        }));
-      } else {
-        console.error("GST calculation failed:", res.error);
+
+      const res: {
+        success: boolean;
+        data?: {
+          taxableAmount: number;
+          gst: number;
+          payableAmount: number;
+        };
+        error?: string;
+      } = await calculateGST(plan.price, 1);
+
+      // // ✅ HARD GUARD (fixes TS18048 completely)
+      // if (!res.success || !res.data) {
+      //   throw new Error(res.error || "Invalid GST response");
+      // }
+
+      if (!res.success || !res.data) {
+        throw new Error(res.error || "Invalid response from server");
       }
+      
+      const { taxableAmount, gst, payableAmount } = res.data;
+      
+      setOrderData(prev => ({
+        ...prev,
+        taxableAmount,
+        gst,
+        payableAmount,
+      }));
+      
     } catch (err) {
       console.error("Error calling GST API:", err);
     } finally {
@@ -332,12 +370,14 @@ const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
     recalcGST();
   }, [plan]);
 
-  // Sync orderData to parent
+  /* -------------------- Sync to Parent -------------------- */
+
   useEffect(() => {
     updateOrderData(orderData);
-  }, [orderData]);
+  }, [orderData, updateOrderData]);
 
-  // GST Number validation
+  /* -------------------- GST Validation -------------------- */
+
   const handleGSTValidation = async () => {
     if (!gstNumber) {
       setGstValidationMsg("⚠️ Please enter GST number");
@@ -347,13 +387,27 @@ const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
 
     try {
       setLoadingValidation(true);
-      const res = await validateGST(gstNumber); // call backend
+
+      const res: {
+        success: boolean;
+        message?: string;
+        error?: string;
+      } = await validateGST(gstNumber);
+
       if (res.success) {
         setGstValidationMsg("✅ GST number is valid");
-        setOrderData(prev => ({ ...prev, gstNumber, gstValid: true }));
+        setOrderData(prev => ({
+          ...prev,
+          gstNumber,
+          gstValid: true,
+        }));
       } else {
         setGstValidationMsg(`❌ ${res.message || res.error}`);
-        setOrderData(prev => ({ ...prev, gstNumber, gstValid: false }));
+        setOrderData(prev => ({
+          ...prev,
+          gstNumber,
+          gstValid: false,
+        }));
       }
     } catch (err) {
       console.error("GST validation error:", err);
@@ -363,6 +417,8 @@ const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
       setLoadingValidation(false);
     }
   };
+
+  /* -------------------- UI -------------------- */
 
   return (
     <div className="container py-5">
@@ -386,12 +442,7 @@ const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
         {/* Quantity */}
         <div className="mb-3">
           <label className="form-label fw-semibold">Quantity</label>
-          <input
-            type="number"
-            className="form-control"
-            value={1}
-            readOnly
-          />
+          <input type="number" className="form-control" value={1} readOnly />
         </div>
 
         {/* GST Number */}
@@ -402,7 +453,7 @@ const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
               type="text"
               className="form-control"
               value={gstNumber}
-              onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+              onChange={e => setGstNumber(e.target.value.toUpperCase())}
               placeholder="Enter GST Number"
               disabled={loadingValidation}
             />
@@ -415,29 +466,44 @@ const OrderDetailsPage: React.FC<Props> = ({ plan, next, updateOrderData }) => {
               {loadingValidation ? "Validating..." : "Validate"}
             </button>
           </div>
+
           {gstValidationMsg && (
             <small
               className="d-block mt-1"
-              style={{ color: gstValidationMsg.includes("✅") ? "green" : "red" }}
+              style={{
+                color: gstValidationMsg.includes("✅") ? "green" : "red",
+              }}
             >
               {gstValidationMsg}
             </small>
           )}
         </div>
 
-        {/* GST & Amount */}
+        {/* Amounts */}
         <div className="mb-3">
           <div className="d-flex justify-content-between">
             <span>Taxable Amount (₹)</span>
-            <span>{loadingGST ? "Calculating..." : `₹${orderData.taxableAmount.toLocaleString()}`}</span>
+            <span>
+              {loadingGST
+                ? "Calculating..."
+                : `₹${orderData.taxableAmount.toLocaleString()}`}
+            </span>
           </div>
+
           <div className="d-flex justify-content-between">
             <span>GST @ 18% (₹)</span>
-            <span>{loadingGST ? "-" : `₹${orderData.gst.toFixed(2)}`}</span>
+            <span>
+              {loadingGST ? "-" : `₹${orderData.gst.toFixed(2)}`}
+            </span>
           </div>
+
           <div className="d-flex justify-content-between fw-bold mt-2">
             <span>Payable Amount (₹)</span>
-            <span>{loadingGST ? "-" : `₹${orderData.payableAmount.toLocaleString()}`}</span>
+            <span>
+              {loadingGST
+                ? "-"
+                : `₹${orderData.payableAmount.toLocaleString()}`}
+            </span>
           </div>
         </div>
 

@@ -95,7 +95,8 @@ export const Navbar: React.FC = () => {
                   style={{ background: 'rgba(0,0,0,0.2)' }}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Hi, {user.name}
+                 Hi, {user.fullName}
+
                 </Link>
               </li>
             )}

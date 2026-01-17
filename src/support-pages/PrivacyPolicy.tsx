@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-  Shield, Lock, User, Eye, Database, FileText, 
+  Shield, Lock, Eye, Database, FileText, 
   CheckCircle, AlertCircle, Globe, Cookie 
 } from "lucide-react";
 

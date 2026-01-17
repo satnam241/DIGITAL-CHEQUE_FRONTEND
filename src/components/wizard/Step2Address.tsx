@@ -336,39 +336,68 @@
 // };
 
 // export default Step2Address;
-import React, { useState, useEffect } from "react";
 
+import { useEffect, useState } from "react";
+
+/* -------------------- Types -------------------- */
+
+interface AddressFormData {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  companyName?: string;
+  gstNo?: string;
+  address?: string;
+  pinCode?: string;
+  city?: string;
+  state?: string;
+}
+
+/**
+ * IMPORTANT:
+ * Parent se poora wizard data aa raha hai,
+ * isliye yahan broad type accept karna padega
+ */
 interface Props {
-  data: any;
-  updateForm: (data: Partial<any>) => void;
+  data: Record<string, unknown>; // ✅ THIS IS THE REAL FIX
+  updateForm: (data: Partial<AddressFormData>) => void;
   next: () => void;
   back: () => void;
 }
 
-const Step2Address: React.FC<Props> = ({ data, updateForm, next, back }) => {
-  const [localData, setLocalData] = useState<any>({
-    fullName: data.fullName || "",
-    email: data.email || "",
-    phone: data.phone || "",
-    companyName: data.companyName || "",
-    gstNo: data.gstNo || "",
-    address: data.address || "",
-    pinCode: data.pinCode || "",
-    city: data.city || "",
-    state: data.state || "",
+/* -------------------- Component -------------------- */
+
+const Step2Address = ({ data, updateForm, next, back }: Props) => {
+  const [localData, setLocalData] = useState<AddressFormData>({
+    fullName: (data as AddressFormData).fullName ?? "",
+    email: (data as AddressFormData).email ?? "",
+    phone: (data as AddressFormData).phone ?? "",
+    companyName: (data as AddressFormData).companyName ?? "",
+    gstNo: (data as AddressFormData).gstNo ?? "",
+    address: (data as AddressFormData).address ?? "",
+    pinCode: (data as AddressFormData).pinCode ?? "",
+    city: (data as AddressFormData).city ?? "",
+    state: (data as AddressFormData).state ?? "",
   });
 
   useEffect(() => {
     updateForm(localData);
-  }, [localData]);
+  }, [localData, updateForm]);
 
-  const handleChange = (field: string, value: string) => {
-    setLocalData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (
+    field: keyof AddressFormData,
+    value: string
+  ) => {
+    setLocalData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const isValidGST = (gst?: string) => {
     if (!gst) return true;
-    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/;
+    const gstRegex =
+      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][0-9A-Z]Z[0-9A-Z]$/;
     return gstRegex.test(gst);
   };
 
@@ -377,109 +406,125 @@ const Step2Address: React.FC<Props> = ({ data, updateForm, next, back }) => {
       alert("Full Name, Email and Phone are required");
       return;
     }
+
     if (localData.gstNo && !isValidGST(localData.gstNo)) {
       alert("Invalid GST format");
       return;
     }
+
     updateForm(localData);
     next();
   };
 
+  const fields: {
+    label: string;
+    field: keyof AddressFormData;
+  }[] = [
+    { label: "Full Name", field: "fullName" },
+    { label: "Email", field: "email" },
+    { label: "Phone", field: "phone" },
+    { label: "Company", field: "companyName" },
+  ];
+
   return (
     <div className="container py-5">
-    <div
-      className="card shadow-sm mx-auto p-4"
-      style={{ maxWidth: "550px", borderRadius: "16px" }}
-    >
-      <h4 className="fw-bold mb-3">Your Details</h4>
-  
-      {/* Full Name, Email, Phone, Company */}
-      {[
-        { label: "Full Name", field: "fullName" },
-        { label: "Email", field: "email" },
-        { label: "Phone", field: "phone" },
-        { label: "Company", field: "companyName" },
-      ].map((f) => (
-        <div className="mb-3" key={f.field}>
-          <label className="form-label fw-semibold">{f.label}</label>
+      <div
+        className="card shadow-sm mx-auto p-4"
+        style={{ maxWidth: "550px", borderRadius: "16px" }}
+      >
+        <h4 className="fw-bold mb-3">Your Details</h4>
+
+        {fields.map(f => (
+          <div className="mb-3" key={f.field}>
+            <label className="form-label fw-semibold">
+              {f.label}
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              value={localData[f.field] ?? ""}
+              onChange={e =>
+                handleChange(f.field, e.target.value)
+              }
+            />
+          </div>
+        ))}
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">
+            GST Number
+          </label>
           <input
             type="text"
             className="form-control"
-            value={localData[f.field] || ""}
-            onChange={(e) => handleChange(f.field, e.target.value)}
+            value={localData.gstNo ?? ""}
+            onChange={e =>
+              handleChange("gstNo", e.target.value.toUpperCase())
+            }
           />
         </div>
-      ))}
-  
-      {/* GST Number */}
-      <div className="mb-3">
-        <label className="form-label fw-semibold">GST Number</label>
-        <input
-          type="text"
-          className="form-control"
-          value={localData.gstNo || ""}
-          onChange={(e) =>
-            handleChange("gstNo", e.target.value.toUpperCase())
-          }
-          placeholder="Enter GST Number"
-        />
-      </div>
-  
-      {/* Address */}
-      <div className="mb-3">
-        <label className="form-label fw-semibold">Address</label>
-        <textarea
-          className="form-control"
-          value={localData.address || ""}
-          onChange={(e) => handleChange("address", e.target.value)}
-        />
-      </div>
-  
-      {/* Pin Code */}
-      <div className="mb-3">
-        <label className="form-label fw-semibold">Pin Code</label>
-        <input
-          type="text"
-          className="form-control"
-          value={localData.pinCode || ""}
-          onChange={(e) => handleChange("pinCode", e.target.value)}
-        />
-      </div>
-  
-      {/* City (read-only) */}
-      <div className="mb-3">
-        <label className="form-label fw-semibold">City</label>
-        <input
-          type="text"
-          className="form-control"
-          value={localData.city || ""}
-          readOnly
-        />
-      </div>
-  
-      {/* State (read-only) */}
-      <div className="mb-3">
-        <label className="form-label fw-semibold">State</label>
-        <input
-          type="text"
-          className="form-control"
-          value={localData.state || ""}
-          readOnly
-        />
-      </div>
-  
-      {/* Navigation Buttons */}
-      <div className="d-flex justify-content-between mt-4">
-        <button className="btn btn-secondary" onClick={back}>
-          Back
-        </button>
-        <button className="btn btn-success" onClick={handleNext}>
-          Continue
-        </button>
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">
+            Address
+          </label>
+          <textarea
+            className="form-control"
+            value={localData.address ?? ""}
+            onChange={e =>
+              handleChange("address", e.target.value)
+            }
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">
+            Pin Code
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            value={localData.pinCode ?? ""}
+            onChange={e =>
+              handleChange("pinCode", e.target.value)
+            }
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">
+            City
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            value={localData.city ?? ""}
+            readOnly
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label fw-semibold">
+            State
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            value={localData.state ?? ""}
+            readOnly
+          />
+        </div>
+
+        <div className="d-flex justify-content-between mt-4">
+          <button className="btn btn-secondary" onClick={back}>
+            Back
+          </button>
+          <button className="btn btn-success" onClick={handleNext}>
+            Continue
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-  
   );
 };
 

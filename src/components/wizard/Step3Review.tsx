@@ -90,7 +90,7 @@
     
   //       {/* GST & Amount Breakdown */}
   //       <div className="mb-2">
-  //         <strong>Taxable Amount:</strong> ₹{data.orderData?.taxableAmount?.toLocaleString()}
+  //         <strong>Taxable Amount:</strongz> ₹{data.orderData?.taxableAmount?.toLocaleString()}
   //       </div>
   //       <div className="mb-2">
   //         <strong>GST (18%):</strong> ₹{data.orderData?.gst?.toFixed(2)}

@@ -1,62 +1,85 @@
-import React, { useState, useEffect } from "react";
-import StepIndicator from "./StepIndicator";
-import OrderDetailsPage from "./OrderDetailsPage"; // Reuse your first step component
-import Step2Address from "./Step2Address";
-import Step3Review from "./Step3Review";
+import { useState } from "react";
+import OrderDetailsPage from "./OrderDetailsPage";
 import Step4Payment from "./Step4Payment";
 
-const WizardForm = () => {
+/* -------------------- Types -------------------- */
+
+interface Plan {
+  _id: string;
+  name: string;
+  price: number;
+}
+
+interface OrderData {
+  taxableAmount?: number;
+  gst?: number;
+  payableAmount?: number;
+}
+
+interface WizardData {
+  plan: Plan;
+  orderData?: OrderData;
+
+  userId?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  companyName?: string;
+  gstNo?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+}
+
+interface Props {
+  data: WizardData;
+  updateForm: (data: Partial<WizardData>) => void;
+  next: () => void;
+}
+
+/* -------------------- Component -------------------- */
+
+const Step1Personal = ({ data, updateForm }: Props) => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    address: "",
-    city: "",
-  });
 
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
-
-  useEffect(() => {
-    const storedPlan = sessionStorage.getItem("selectedPlan");
-    if (storedPlan) setSelectedPlan(JSON.parse(storedPlan));
-  }, []);
-
-  const nextStep = () => setStep((prev) => prev + 1);
-  const prevStep = () => setStep((prev) => prev - 1);
-
-  const updateForm = (data: Partial<typeof formData>) =>
-    setFormData({ ...formData, ...data });
-
-  if (!selectedPlan) {
-    return <p>Loading selected plan...</p>;
-  }
+  const nextStep = () => setStep(prev => prev + 1);
+  // const prevStep = () => setStep(prev => prev - 1);
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-6">
-        <StepIndicator currentStep={step} />
+    <>
+      {/* STEP 1: Order Details */}
+      {step === 1 && (
+        <OrderDetailsPage
+          plan={data.plan}
+          next={nextStep}
+          updateOrderData={orderData =>
+            updateForm({ orderData })
+          }
+        />
+      )}
 
-        {step === 1 && (
-          <OrderDetailsPage
-            plan={selectedPlan}
-            next={nextStep}
-          />
-        )}
-        {step === 2 && (
-          <Step2Address
-            data={formData}
-            updateForm={updateForm}
-            next={nextStep}
-            back={prevStep}
-          />
-        )}
-        {step === 3 && (
-          <Step3Review data={formData} next={nextStep} back={prevStep} />
-        )}
-        {step === 4 && <Step4Payment back={prevStep} />}
-      </div>
-    </div>
+      {/* STEP 2: Payment */}
+      {step === 2 && (
+        <Step4Payment
+          planId={data.plan._id}
+          payableAmount={
+            data.orderData?.payableAmount ?? data.plan.price
+          }
+          userDetails={{
+            userId: data.userId,
+            fullName: data.fullName,
+            email: data.email,
+            phone: data.phone,
+            companyName: data.companyName,
+            gstNo: data.gstNo,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+          }}
+        />
+      )}
+    </>
   );
 };
 
-export default WizardForm;
+export default Step1Personal;

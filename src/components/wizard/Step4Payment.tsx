@@ -110,73 +110,118 @@
 // };
 
 // export default Step4Payment;
-
-import React, { useState } from "react";
+import { useState } from "react";
 import { USER_PAYMENT, ENDPOINTS } from "../../utils/constant";
+
+/* -------------------- Types -------------------- */
+
+interface UserDetails {
+  userId?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  companyName?: string;
+  gstNo?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+}
 
 interface Props {
   planId: string;
   payableAmount: number;
-  userDetails: any;
+  userDetails: UserDetails;
 }
 
-const loadRazorpayScript = () =>
-  new Promise<boolean>((resolve) => {
+interface CreateOrderResponse {
+  order: {
+    id: string;
+    amount: number;
+    currency: string;
+  };
+  transactionId: string;
+  payableAmount: number;
+}
+
+/* -------------------- Razorpay Loader -------------------- */
+
+const loadRazorpayScript = (): Promise<boolean> =>
+  new Promise(resolve => {
     const id = "razorpay-sdk";
     if (document.getElementById(id)) return resolve(true);
+
     const script = document.createElement("script");
     script.id = id;
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
+
     document.body.appendChild(script);
   });
 
-const Step4Payment: React.FC<Props> = ({ planId, payableAmount, userDetails }) => {
+/* -------------------- Component -------------------- */
+
+const Step4Payment = ({ planId, payableAmount, userDetails }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const handleSubscribe = async () => {
-    if (!planId || !payableAmount) return alert("Missing plan or amount");
+    if (!planId || payableAmount <= 0) {
+      alert("Missing plan or amount");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token"); // if logged in
-      const res = await fetch(`${USER_PAYMENT}${ENDPOINTS.PAYMENT_CREATE}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          planId,
-          payableAmount,
-          userId: userDetails?.userId || null,
-          userDetails: {
-            fullName: userDetails.fullName,
-            email: userDetails.email,
-            phone: userDetails.phone,
-            companyName: userDetails.companyName,
-            gstNo: userDetails.gstNo,
-            address: userDetails.address,
-            city: userDetails.city,
-            state: userDetails.state,
-          },
-        }),
-      });
+      const token = localStorage.getItem("token");
 
-      const json = await res.json();
-      if (!res.ok) {
+      const res = await fetch(
+        `${USER_PAYMENT}${ENDPOINTS.PAYMENT_CREATE}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            planId,
+            payableAmount,
+            userId: userDetails.userId ?? null,
+            userDetails: {
+              fullName: userDetails.fullName,
+              email: userDetails.email,
+              phone: userDetails.phone,
+              companyName: userDetails.companyName,
+              gstNo: userDetails.gstNo,
+              address: userDetails.address,
+              city: userDetails.city,
+              state: userDetails.state,
+            },
+          }),
+        }
+      );
+
+      const json: CreateOrderResponse & { message?: string } =
+        await res.json();
+
+      if (!res.ok || !json.order) {
         alert(json.message || "Failed to create order");
-        setLoading(false);
         return;
       }
 
-      const { order, transactionId, payableAmount: serverPayable } = json;
+      const {
+        order,
+        transactionId,
+        payableAmount: serverPayableAmount,
+      } = json;
 
       const ok = await loadRazorpayScript();
-      if (!ok) return alert("Failed to load Razorpay");
+      if (!ok) {
+        alert("Failed to load Razorpay");
+        return;
+      }
 
-      const options: any = {
+      const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
@@ -188,20 +233,27 @@ const Step4Payment: React.FC<Props> = ({ planId, payableAmount, userDetails }) =
           email: userDetails.email,
           contact: userDetails.phone,
         },
-        handler: async function (response: any) {
-          // Verify on server
-          const verifyRes = await fetch(`${USER_PAYMENT}${ENDPOINTS.PAYMENT_VERIFY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-            body: JSON.stringify({
-              transactionId,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }),
-          });
+        handler: async (response: any) => {
+          const verifyRes = await fetch(
+            `${USER_PAYMENT}${ENDPOINTS.PAYMENT_VERIFY}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify({
+                transactionId,
+                payableAmount: serverPayableAmount,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            }
+          );
 
           const result = await verifyRes.json();
+
           if (verifyRes.ok) {
             alert("✅ Payment successful!");
             window.location.href = "/signup";
@@ -212,11 +264,13 @@ const Step4Payment: React.FC<Props> = ({ planId, payableAmount, userDetails }) =
         theme: { color: "#3399cc" },
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const RazorpayConstructor = (window as any).Razorpay;
+      const rzp = new RazorpayConstructor(options);
       rzp.open();
-    } catch (err: any) {
-      console.error("Error during subscribe:", err);
-      alert(err.message || "Unexpected error");
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error("Error during subscribe:", error);
+      alert(error.message || "Unexpected error");
     } finally {
       setLoading(false);
     }
@@ -224,27 +278,30 @@ const Step4Payment: React.FC<Props> = ({ planId, payableAmount, userDetails }) =
 
   return (
     <div className="container py-4">
-    <div
-      className="card shadow-sm p-4 mx-auto"
-      style={{ maxWidth: "500px", borderRadius: "16px" }}
-    >
-      <h3 className="fw-bold mb-3">Complete Payment</h3>
-  
-      <div className="mb-4">
-        <p className="text-muted">Amount to pay:</p>
-        <h2 className="text-success">₹{payableAmount.toLocaleString()}</h2>
-      </div>
-  
-      <button
-        className="btn btn-success w-100 fw-semibold py-2"
-        onClick={handleSubscribe}
-        disabled={loading}
+      <div
+        className="card shadow-sm p-4 mx-auto"
+        style={{ maxWidth: "500px", borderRadius: "16px" }}
       >
-        {loading ? "Processing..." : `Pay ₹${payableAmount.toLocaleString()}`}
-      </button>
+        <h3 className="fw-bold mb-3">Complete Payment</h3>
+
+        <div className="mb-4">
+          <p className="text-muted">Amount to pay:</p>
+          <h2 className="text-success">
+            ₹{payableAmount.toLocaleString()}
+          </h2>
+        </div>
+
+        <button
+          className="btn btn-success w-100 fw-semibold py-2"
+          onClick={handleSubscribe}
+          disabled={loading}
+        >
+          {loading
+            ? "Processing..."
+            : `Pay ₹${payableAmount.toLocaleString()}`}
+        </button>
+      </div>
     </div>
-  </div>
-  
   );
 };
 

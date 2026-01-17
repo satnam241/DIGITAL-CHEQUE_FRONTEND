@@ -83,27 +83,61 @@
 // };
 
 // export default WizardForm;
-import React, { useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
 import StepIndicator from "./StepIndicator";
 import OrderDetailsPage from "./OrderDetailsPage";
+import type { OrderData } from "./OrderDetailsPage";
 import Step2Address from "./Step2Address";
 import Step3Review from "./Step3Review";
 import Step4Payment from "./Step4Payment";
 
-const WizardForm: React.FC = () => {
+/* -------------------- Types -------------------- */
+
+interface SelectedPlan {
+  _id: string;
+  price: number;
+  name: string;
+}
+
+interface WizardFormData {
+  orderData?: OrderData;
+
+  userId?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  companyName?: string;
+  gstNo?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+}
+
+/* -------------------- Component -------------------- */
+
+const WizardForm = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<any>({});
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [formData, setFormData] = useState<WizardFormData>({});
+  const [selectedPlan, setSelectedPlan] =
+    useState<SelectedPlan | null>(null);
 
   useEffect(() => {
     const p = sessionStorage.getItem("selectedPlan");
-    if (p) setSelectedPlan(JSON.parse(p));
+    if (p) {
+      setSelectedPlan(JSON.parse(p));
+    }
   }, []);
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
-  const updateForm = (data: Partial<any>) => setFormData(prev => ({ ...prev, ...data }));
+  const updateForm = (data: Partial<WizardFormData>) => {
+    setFormData(prev => ({
+      ...prev,
+      ...data,
+    }));
+  };
 
   if (!selectedPlan) return <p>Loading plan...</p>;
 
@@ -111,17 +145,43 @@ const WizardForm: React.FC = () => {
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <div style={{ padding: 16 }}>
         <StepIndicator currentStep={step} />
+
+        {/* STEP 1 */}
         {step === 1 && (
-          <OrderDetailsPage plan={selectedPlan} next={nextStep} updateOrderData={(d: any) => updateForm({ orderData: d })} />
+          <OrderDetailsPage
+            plan={selectedPlan}
+            next={nextStep}
+            updateOrderData={d => updateForm({ orderData: d })}
+          />
         )}
+
+        {/* STEP 2 */}
         {step === 2 && (
-          <Step2Address data={{ ...formData, plan: selectedPlan }} updateForm={updateForm} next={nextStep} back={prevStep} />
+          <Step2Address
+            data={{ ...formData, plan: selectedPlan }}
+            updateForm={updateForm}
+            next={nextStep}
+            back={prevStep}
+          />
         )}
-        {step === 3 && <Step3Review data={{ ...formData, plan: selectedPlan }} back={prevStep} next={nextStep} />}
+
+        {/* STEP 3 */}
+        {step === 3 && (
+          <Step3Review
+            data={{ ...formData, plan: selectedPlan }}
+            back={prevStep}
+            next={nextStep}
+          />
+        )}
+
+        {/* STEP 4 */}
         {step === 4 && (
           <Step4Payment
             planId={selectedPlan._id}
-            payableAmount={formData.orderData?.payableAmount || selectedPlan.price}
+            payableAmount={
+              formData.orderData?.payableAmount ??
+              selectedPlan.price
+            }
             userDetails={{
               userId: formData.userId,
               fullName: formData.fullName,
