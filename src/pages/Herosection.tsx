@@ -1,13 +1,14 @@
 import React from "react";
 import { Container, Row, Col, Carousel, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import HowToUseSection from "./HowToUseSection";
 const HeroSection: React.FC = () => {
   const navigate = useNavigate();
 
   const handleTryNow = () => {
     navigate("/plans"); 
   };
-  return (
+  return (<>
     <section
       className="bg-#ffffff text-[#00a274] mt-5"
       style={{ backgroundColor: "#ffffff", color: "rgb(12 119 111)" }}
@@ -151,7 +152,7 @@ const HeroSection: React.FC = () => {
               <p>✅ Supports Manual, Post-Dated & Repetitive Cheques</p>
             </Col>
           </Row>
-  
+          <HowToUseSection />
           {/* Download Button */}
           <div className="mt-4">
             <Button
@@ -166,6 +167,8 @@ const HeroSection: React.FC = () => {
         </Container>
       </div>
     </section>
+  
+    </>
   );
   
 }
